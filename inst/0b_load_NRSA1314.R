@@ -15,18 +15,20 @@ library(SEMWesternStrmbug)
 
 ###############
 # READ FILES SAVED On OneDrive
-site_org <-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_1213_website/nrsa1314_siteinformation_wide_04292019.csv")
-chem_org <- read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_1213_website/nrsa1314_widechem_04232019.csv")
-bent_org <- read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_1213_website/nrsa1314_bentmmi_04232019.csv")
-land_org <- read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_1213_website/nrsa1314_landmet_02132019.csv")
-phab_org <- read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_1213_website/nrsa1314_phabmed_04232019.csv")
-strcat_org <-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/StreamCat/NRSA_2013_14/FINAL_TABLE_NRSA_1314.csv")
+site_org <-read_csv("data/NRSA1314/nrsa1314_siteinformation_wide_04292019.csv")
+chem_org <- read_csv("data/NRSA1314/nrsa1314_widechem_04232019.csv")
+bent_org <- read_csv("data/NRSA1314/nrsa1314_bentmmi_04232019.csv")
+land_org <- read_csv("data/NRSA1314/nrsa1314_landmet_02132019.csv")
+phab_org <- read_csv("data/NRSA1314/nrsa1314_phabmed_04232019.csv")
+strcat_org <-read_csv("data/NRSA1314/FINAL_TABLE_NRSA_1314.csv")
+strcat_nlcd<-read.csv("data/NLCD_NRSA081319.csv")
+
 
 # Load 2013-14 other NRSA data
-benthic_oe_org<-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_benthic_indices/NRSA2008-2019_OE_Scores.csv")
-isotope_org <- read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/Water_isotope/NSRA 1314 H2O Isotopes.csv")
-phab_oe_org<-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_PHab_Discharge/NRSA_PHab_Discharge_OE891314.csv")
-wqii_org<-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/WQII/wqii_nrsa.csv")
+benthic_oe_org<-read_csv("data/NRSA2008-2019_OE_Scores.csv")
+isotope_org <- read_csv("data/NRSA1314/NSRA 1314 H2O Isotopes.csv")
+phab_oe_org<-read_csv("data/NRSA_PHab_Discharge_OE891314.csv")
+wqii_org<-read_csv("data/wqii_nrsa.csv")
 
 # FORMAT DATE IN SITE
 site_org$DATE_COL<-as.Date(site_org$DATE_COL, format="%m/%d/%Y")
@@ -84,8 +86,8 @@ phab <-phab_org%>%
            "QR1","QRVEG1","RDIST1",
            "W1_HALL","W1H_WALL","W1H_LOG","W1_HNOAG","W1_HAG"))
 
-strcat <-strcat_org%>%
-  select("SITE_ID",
+strcat_red <-strcat_org%>%
+  select("UNIQUE_ID",
          "CatAreaSqKm","WsAreaSqKm","CatAreaSqKmRp100","WsAreaSqKmRp100",
          "HydrlCondWs","OMHWs",
          "RdDensWs","RdDensWsRp100","RdDens_WS_PctFull","RdDens_RipBuf100_WS_PctFullRp100",
@@ -124,6 +126,27 @@ strcat <-strcat_org%>%
          "PSUMPY_2013Ws","PSUMPY_2013_PT","PSUMPY_2014Ws","PSUMPY_2014_PT",
          "MAST_2013","MAST_2014","MSST_2013","MSST_2014","MWST_2013","MWST_2014")
 
+###################
+# STREAMCAT CATCHMENT SCALE - Compiled using the StreamCat Tool R package 8/15/23
+strcat_nlcd_red<-strcat_nlcd%>%
+  select("UNIQUE_ID","COMID",
+         "PCTOW2013CAT","PCTICE2013CAT","PCTURBOP2013CAT","PCTURBLO2013CAT","PCTURBMD2013CAT","PCTURBHI2013CAT",
+         "PCTDECID2013CAT","PCTCONIF2013CAT","PCTMXFST2013CAT",
+         "PCTSHRB2013CAT","PCTGRS2013CAT",
+         "PCTHAY2013CAT","PCTCROP2013CAT",
+         "PCTWDWET2013CAT","PCTHBWET2013CAT",
+         "PCTOW2013CATRP100","PCTICE2013CATRP100",
+         "PCTURBOP2013CATRP100","PCTURBLO2013CATRP100","PCTURBMD2013CATRP100","PCTURBHI2013CATRP100",
+         "PCTDECID2013CATRP100","PCTCONIF2013CATRP100","PCTMXFST2013CATRP100",
+         "PCTSHRB2013CATRP100","PCTGRS2013CATRP100",
+         "PCTHAY2013CATRP100","PCTCROP2013CATRP100",
+         "PCTWDWET2013CATRP100","PCTHBWET2013CATRP100",
+         "PCTIMP2013CAT","PCTIMP2013CATRP100","PCTAGDRAINAGEWS","PCTAGDRAINAGECAT")
+
+# MERGE STREAMCAT SUBSETS
+strcat_tot<-left_join(strcat_red,strcat_nlcd_red,by=("UNIQUE_ID"))
+
+
 # Updated benthic O/E
 # PROCESS DATA - SELECT YEAR 2013-14
 # DATE_COL from a character to a date
@@ -156,7 +179,7 @@ test<-phab_oe%>%
 names(wqii_org)
 wqii<- wqii_org%>%
   filter(YEAR==2013|YEAR==2014)%>%
-  select(c("SITE_ID","VISIT_NO","RT_WQI",
+  select(c("SITE_ID","VISIT_NO","UNIQUE_ID","RT_WQI",
            "CL_pt","SO4_pt","PTL_pt","NTL_pt",
            "TURB_pt","ENTERO_PT",
            "DO_PT","PH_PT","NUMVARN","WQII"))
@@ -170,7 +193,7 @@ table(isotope_org$YEAR)
 #2013 2014
 #1046 1279
 isotope <- isotope_org%>%
-  select(c("SITE_ID","VISIT_NO","SAMPLE_ID","Chem_Lab_ID","H2O_dD","H2O_d18O","d.excess"))
+  select(c("SITE_ID","VISIT_NO","SAMPLE_ID","Chem_Lab_ID","H2O_dD","H2O_d18O","d-excess"))
 length(unique(isotope$SITE_ID))#2129
 
 # Check for duplicates n=8 (2 each but have different isotope values)
@@ -180,20 +203,20 @@ test<-isotope%>%
   filter(n()>1)
 
 # WRITE REDUCED DATASETS TO NEW FOLDER TO MERGE
-write.csv(site_org,"data_to_merge_1314/a_site.csv", row.names=FALSE)
-write.csv(bent,"data_to_merge_1314/b_benth.csv", row.names=FALSE)
-write.csv(benthic_oe,"data_to_merge_1314/c_benth_oe.csv", row.names=FALSE)
-write.csv(chem,"data_to_merge_1314/c_chem.csv", row.names=FALSE)
-#write.csv(land,"data_to_merge_1314/d_land.csv", row.names=FALSE)
-write.csv(phab,"data_to_merge_1314/e_phab.csv", row.names=FALSE)
+write_csv(site_org,"data_to_merge_1314/a_site.csv")
+write_csv(bent,"data_to_merge_1314/b_benth.csv")
+write_csv(benthic_oe,"data_to_merge_1314/c_benth_oe.csv")
+write_csv(chem,"data_to_merge_1314/c_chem.csv")
+#write_csv(land,"data_to_merge_1314/d_land.csv")
+write_csv(phab,"data_to_merge_1314/e_phab.csv")
 
-write.csv(phab_oe,"data_to_merge_1314/f_phab_oe.csv", row.names=FALSE)
-write.csv(wqii,"data_to_merge_1314/g_wqii.csv", row.names=FALSE)
-write.csv(isotope,"data_to_merge_1314/h_isotope.csv", row.names=FALSE)
+write_csv(phab_oe,"data_to_merge_1314/f_phab_oe.csv")
+write_csv(wqii,"data_to_merge_1314/g_wqii.csv")
+write_csv(isotope,"data_to_merge_1314/h_isotope.csv")
 
 
 # Save in processed data folder
-write.csv(strcat,"data_processed/subset_streamcat1314.csv", row.names=FALSE)
+write_csv(strcat_tot,"data_processed/subset_streamcat1314.csv")
 
 #########
 ## Use multi-merge function to bring data together
@@ -231,8 +254,8 @@ nrsa_proc= nrsa%>%
 
 ##################
 # Merge processed NRSA and StreamCat datasets together using left_join
-nrsa_strmcatv1<-left_join(nrsa_proc,strcat,
-                          by="SITE_ID")
+nrsa_strmcatv1<-left_join(nrsa_proc,strcat_tot,
+                          by="UNIQUE_ID")
 
 #############
 ## DATA PROCESSING
@@ -308,10 +331,10 @@ nrsa_strmcat1<-nrsa_strmcat_proc %>%
 length(unique(nrsa_strmcat1$SITE_ID)) # n = 2069
 
 # EXPORT DATA AS .csv files
-write.csv(nrsa_strmcat_proc,"data_processed/nrsa1314/nrsa1314_strmcat_all.csv", row.names=FALSE)
-#write.csv(nrsa_strmcat1,"data_processed/nrsa1314/nrsa1314_strmcat_visit1.csv", row.names=FALSE)
+write_csv(nrsa_strmcat_proc,"data_processed/nrsa1314/nrsa1314_strmcat_all.csv")
+#write_csv(nrsa_strmcat1,"data_processed/nrsa1314/nrsa1314_strmcat_visit1.csv")
 #dat_names<-data.frame(colnames(nrsa_strmcat1))
-#write.csv(dat_names,"data_processed/nrsa1314/column_vars1314.csv", row.names=FALSE)
+#write_csv(dat_names,"data_processed/nrsa1314/column_vars1314.csv")
 
 # Store processed data within the package
 #usethis::use_data(nrsa_strmcat1,overwrite=TRUE)
@@ -322,7 +345,7 @@ write.csv(nrsa_strmcat_proc,"data_processed/nrsa1314/nrsa1314_strmcat_all.csv", 
 ################################
 ## PROCESS DATA TO BE ABLE TO MERGE WITH OTHER SURVEYS
 ## READ PROCESSED DATA n = 2261
-nrsa_strmcat_proc<-read.csv("data_processed/nrsa1314/nrsa1314_strmcat_all.csv")
+nrsa_strmcat_proc<-read_csv("data_processed/nrsa1314/nrsa1314_strmcat_all.csv")
 
 ## # LANDCOVER/USE CLASSES
 nrsa_strmcat_proc <-nrsa_strmcat_proc %>%
@@ -357,7 +380,48 @@ nrsa_strmcat_proc <-nrsa_strmcat_proc %>%
          PCTWDWET_WsRp100=PctWdWet2013_WsRp100,
          PCTHBWET_WsRp100=PctHbWet2013_WsRp100,
          PCTIMP_WS=PctImp2013Ws,
-         PCTIMP_WsRp100=PctImp2013_RipBuf100WsRp100)%>%
+         PCTIMP_WsRp100=PctImp2013_RipBuf100WsRp100,
+         PCTOW_CAT=PCTOW2013CAT,
+         PCTICE_CAT=PCTICE2013CAT,
+         PCTURBOP_CAT=PCTURBOP2013CAT,
+         PCTURBLO_CAT=PCTURBLO2013CAT,
+         PCTURBMD_CAT=PCTURBMD2013CAT,
+         PCTURBHI_CAT=PCTURBHI2013CAT,
+         PCTDECID_CAT=PCTDECID2013CAT,
+         PCTCONIF_CAT=PCTCONIF2013CAT,
+         PCTMXFST_CAT=PCTMXFST2013CAT,
+         PCTSHRB_CAT=PCTSHRB2013CAT,
+         PCTGRS_CAT=PCTGRS2013CAT,
+         PCTHAY_CAT=PCTHAY2013CAT,
+         PCTCROP_CAT=PCTCROP2013CAT,
+         PCTWDWET_CAT=PCTWDWET2013CAT,
+         PCTHBWET_CAT=PCTHBWET2013CAT,
+         PCTOW_CATRP100=PCTOW2013CATRP100,
+         PCTICE_CATRP100=PCTICE2013CATRP100,
+         PCTURBOP_CATRP100=PCTURBOP2013CATRP100,
+         PCTURBLO_CATRP100=PCTURBLO2013CATRP100,
+         PCTURBMD_CATRP100=PCTURBMD2013CATRP100,
+         PCTURBHI_CATRP100=PCTURBHI2013CATRP100,
+         PCTDECID_CATRP100=PCTDECID2013CATRP100,
+         PCTCONIF_CATRP100=PCTCONIF2013CATRP100,
+         PCTMXFST_CATRP100=PCTMXFST2013CATRP100,
+         PCTSHRB_CATRP100=PCTSHRB2013CATRP100,
+         PCTGRS_CATRP100=PCTGRS2013CATRP100,
+         PCTHAY_CATRP100=PCTHAY2013CATRP100,
+         PCTCROP_CATRP100=PCTCROP2013CATRP100,
+         PCTWDWET_CATRP100=PCTWDWET2013CATRP100,
+         PCTHBWET_CATRP100=PCTHBWET2013CATRP100,
+         PCTIMP_CAT=PCTIMP2013CAT,
+         PCTIMP_CATRP100=PCTIMP2013CATRP100,
+         PCTOW2013CAT,PCTICE2013CAT,PCTURBOP2013CAT,PCTURBLO2013CAT,PCTURBMD2013CAT,PCTURBHI2013CAT,
+         PCTDECID2013CAT,PCTCONIF2013CAT,PCTMXFST2013CAT,PCTSHRB2013CAT,PCTGRS2013CAT,
+         PCTHAY2013CAT,PCTCROP2013CAT,PCTWDWET2013CAT,PCTHBWET2013CAT,
+         PCTOW2013CATRP100,PCTICE2013CATRP100,PCTURBOP2013CATRP100,PCTURBLO2013CATRP100,PCTURBMD2013CATRP100,PCTURBHI2013CATRP100,
+         PCTDECID2013CATRP100,PCTCONIF2013CATRP100,PCTMXFST2013CATRP100,
+         PCTSHRB2013CATRP100,PCTGRS2013CATRP100,
+         PCTHAY2013CATRP100,PCTCROP2013CATRP100,
+         PCTWDWET2013CATRP100,PCTHBWET2013CATRP100,
+         PCTIMP2013CAT,PCTIMP2013CATRP100)%>%
   select(-c(PctOw2013Ws, PctIce2013Ws, PctUrbOp2013Ws, PctUrbLo2013Ws, PctUrbMd2013Ws, PctUrbHi2013Ws,
             PctDecid2013Ws, PctConif2013Ws, PctMxFst2013Ws, PctShrb2013Ws, PctGrs2013Ws,
             PctHay2013Ws, PctCrop2013Ws, PctWdWet2013Ws, PctHbWet2013Ws,
@@ -401,6 +465,14 @@ nrsa1314<-nrsa_strmcat_proc%>%
            "PCTURBMD_WsRp100","PCTURBHI_WsRp100", "PCTDECID_WsRp100", "PCTCONIF_WsRp100", "PCTMXFST_WsRp100",
            "PCTSHRB_WsRp100", "PCTGRS_WsRp100", "PCTHAY_WsRp100", "PCTCROP_WsRp100",
            "PCTWDWET_WsRp100", "PCTHBWET_WsRp100", "PCTIMP_WS", "PCTIMP_WsRp100",
+           "PCTAGDRAINAGEWS","PCTAGDRAINAGECAT",
+           "PCTOW_CAT","PCTICE_CAT","PCTURBOP_CAT","PCTURBLO_CAT","PCTURBMD_CAT","PCTURBHI_CAT",
+           "PCTDECID_CAT","PCTCONIF_CAT","PCTMXFST_CAT","PCTSHRB_CAT","PCTGRS_CAT",
+           "PCTHAY_CAT","PCTCROP_CAT","PCTWDWET_CAT","PCTHBWET_CAT",
+           "PCTOW_CATRP100","PCTICE_CATRP100","PCTURBOP_CATRP100","PCTURBLO_CATRP100","PCTURBMD_CATRP100","PCTURBHI_CATRP100",
+           "PCTDECID_CATRP100","PCTCONIF_CATRP100","PCTMXFST_CATRP100","PCTSHRB_CATRP100","PCTGRS_CATRP100",
+           "PCTHAY_CATRP100","PCTCROP_CATRP100","PCTWDWET_CATRP100","PCTHBWET_CATRP100",
+           "PCTIMP_CAT","PCTIMP_CATRP100",
            "NABD_DensWs","NABD_NIDStorWs","NABD_NrmStorWs",
            "RdDensWs","RdDensWsRp100",
            "PopDen2010Ws","PopDen2010WsRp100",
@@ -410,7 +482,7 @@ nrsa1314<-nrsa_strmcat_proc%>%
 #######################
 #GET COLUMN NAMES TO CHECK
 dat_names_share<-data.frame(colnames(nrsa1314))
-write.csv(dat_names_share,"data_processed/nrsa1314/column_varsToCompile_1314.csv", row.names=FALSE)
+write_csv(dat_names_share,"data_processed/nrsa1314/column_varsToCompile_1314.csv")
 
 ## WRITE TO CSV
-write.csv(nrsa1314,"data_processed/nrsa1314/nrsa1314_to_merge.csv", row.names=FALSE)
+write_csv(nrsa1314,"data_processed/nrsa1314/nrsa1314_to_merge.csv")

@@ -330,3 +330,103 @@ grid.arrange(arrangeGrob(total,
                          ncol=2,widths=c(4,3.5)),
              legend,nrow=2,heights=c(8, .5))
 dev.off()
+
+
+################
+## TOTAL EFFECTS for O/E in WMT AND XER
+## TOTAL EFFECTS OE
+teff_total_oe<-teff_total%>%
+  filter(model=="OE")%>%
+  mutate(Predictor=factor(Predictor,exclude="Agriculture Ws"))
+
+total_oe<-ggplot(teff_total_oe,aes(Predictor,est.std,fill=Category)) +
+  geom_bar(stat = "identity", position=position_dodge()) +
+  geom_errorbar(aes(ymin=ci.lower, ymax=ci.upper), width=.2, # est_std-se_std
+                position=position_dodge(.9))+
+  scale_fill_manual(values=vid, drop=TRUE)+
+  #scale_fill_manual(values=cbPalette, drop=TRUE)+
+  geom_rect(aes(xmin=as.integer(Predictor)-0.5,#
+                xmax=as.integer(Predictor)+0.5,#
+                ymin=-Inf,ymax=Inf),# ...,color=Category),linewidth=0.3,fill=NA,#fill=alpha("grey",0),
+            alpha=0.2)+
+  #geom_vline(xintercept=c())
+  ylim(-0.55,0.55)+
+  #facet_wrap(~model, ncol=1)+
+  geom_hline(aes(yintercept = 0))+
+  theme_bw(base_size=12)+
+  theme(plot.title = element_text(family = "AR",face="plain",size=14, hjust=0.5),
+        axis.text.x = element_text(family = "AR", angle=45, hjust=1,size=12,
+                                   colour=c(rep("#440154",2),rep("#443983",1), rep("#31688e",4),rep("#440154",1), #teal rep("#21918c",4),
+                                            rep("#35b779",3),rep("#90d743",1),rep("#fde725",2))),#, colour=c(rep("#8c510a",3),rep("#bf812d",1),rep("#dfc27d",3),rep("#c7eae5",2),rep("#80cdc1",1),rep("#c7eae5",1),rep("#35978f",2),rep("#01665e",1))),
+        axis.text.y = element_text(family = "AR", size=12),
+        axis.title.y = element_text(family="AR"), #element_blank(),#
+        strip.text.x = element_text(family="AR", size=12),
+        panel.grid.major =  element_line(colour = NA),
+        panel.grid.minor=element_line(colour = NA),
+        # panel.spacing = unit(c(1,1,0,4), "lines"),
+        legend.position= "bottom",
+        legend.key.size = unit(10, 'point'),
+        legend.title=element_blank(),
+        legend.text=element_text(family="AR", size=11))+
+  ylab("Total standardize effects")+
+  xlab(NULL)+
+  ggtitle("WMT")
+total_oe
+
+## XER TOTAL EFFECTS
+teff_total_x_oe<-teff_total_x2%>%
+  filter(model=="OE")%>%
+  mutate(Predictor=factor(Predictor,exclude="Max Temp"))
+
+total_x_oe<-ggplot(teff_total_x_oe,aes(Predictor,est.std,fill=Category)) +
+  geom_bar(stat = "identity", position=position_dodge()) +
+  geom_errorbar(aes(ymin=ci.lower, ymax=ci.upper), width=.2, # est_std-se_std
+                position=position_dodge(.9))+
+  scale_fill_manual(values=vid_x, drop=TRUE)+
+  geom_rect(aes(xmin=as.integer(Predictor)-0.5,
+                xmax=as.integer(Predictor)+0.5,
+                ymin=-Inf,ymax=Inf),
+            alpha=0.2)+
+  ylim(-0.55,0.55)+
+  #facet_wrap(~model, ncol=1)+
+  geom_hline(aes(yintercept = 0))+
+  theme_bw(base_size=12)+
+  theme(plot.title = element_text(family = "AR",face="plain",size=14, hjust=0.5),
+        axis.text.x = element_text(family = "AR", angle=45, hjust=1,size=12,
+                                   colour= c(rep("#440154",3), rep("#443983",2),rep("#31688e",4),rep("#440154",2), # teal rep("#21918c",1),
+                                             rep("#35b779",2),rep("#90d743",1),rep("#fde725",2))),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank(),#element_text(family="AR"), #
+        strip.text.x = element_text(family="AR", size=12),
+        panel.grid.major =  element_line(colour = NA),
+        panel.grid.minor=element_line(colour = NA),
+        # panel.spacing = unit(c(1,1,0,4), "lines"),
+        legend.position= "none",#"bottom",
+        legend.key.size = unit(10, 'point'),
+        legend.title=element_blank(),
+        legend.text=element_text(family="AR", size=11))+
+  #ylab("Total effects")+
+  xlab(NULL)+
+  ggtitle("XER")
+
+total_x_oe
+
+#########################
+## COMBINE WMT AND XER FOR OE ONLY
+# GET LEGEND
+legend <- get_legend(total_oe)
+
+# REMOVE LEGEND
+total_oe <- total_oe + theme(legend.position="none")
+
+# ARRANGE MULTIPLE GRAPHS AND LEGEND
+# https://stackoverflow.com/questions/13649473/add-a-common-legend-for-combined-ggplots
+tiff(filename="inst/Routput/Figures/Tot_eff_ECO9_WMTXERw_m15_OE_ONLY.tiff",
+     width=8, height=6, units="in", res=400)
+grid.arrange(arrangeGrob(total_oe,
+                         total_x_oe,
+                         ncol=2,widths=c(4,3.5)),
+             legend,nrow=2,heights=c(5, .5))
+dev.off()
+

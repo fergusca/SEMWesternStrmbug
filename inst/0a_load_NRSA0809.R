@@ -18,18 +18,20 @@ library(SEMWesternStrmbug)
 #siteinformation_wide,nrsa1314_widechem,bentmmi, landmet, phabmed
 
 # On OneDrive
-site_org <- read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_0809_website/siteinfo_0.csv")
-chem_org <- read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_0809_website/chem.csv")
-bent_org <- read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_0809_website/bentcond.csv")
-land_org <- read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_0809_website/land.csv")
-phab_org <- read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_0809_website/phablow.csv")
-strcat_org <-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/StreamCat/NRSA_2008_09/FINAL_TABLE_NRSA_0809.csv")
+site_org <- read_csv("data/NRSA0809/siteinfo_0.csv")
+chem_org <- read_csv("data/NRSA0809/chem.csv")
+bent_org <- read_csv("data/NRSA0809/bentcond.csv")
+land_org <- read_csv("data/NRSA0809/land.csv")
+phab_org <- read_csv("data/NRSA0809/phablow.csv")
+strcat_org <-read_csv("data/NRSA0809/FINAL_TABLE_NRSA_0809.csv")
+strcat_nlcd<-read_csv("data/NLCD_NRSA081319.csv")
+
 
 # Load other NRSA data
-benthic_oe_org<-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_benthic_indices/NRSA2008-2019_OE_Scores.csv")
-isotope_org <- read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/Water_isotope/NRSA 0809 Water Isotope.csv")
-phab_oe_org<-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_PHab_Discharge/NRSA_PHab_Discharge_OE891314.csv")
-wqii_org<-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/WQII/wqii_nrsa.csv")
+benthic_oe_org<-read_csv("data/NRSA2008-2019_OE_Scores.csv")
+isotope_org <- read_csv("data/NRSA0809/NRSA 0809 Water Isotope.csv")
+phab_oe_org<-read_csv("data/NRSA_PHab_Discharge_OE891314.csv")
+wqii_org<-read_csv("data/wqii_nrsa.csv")
 
 # FORMAT DATE IN SITE DATASET
 site_org$DATE_COL<-as.Date(site_org$DATE_COL, format="%d-%b-%y")
@@ -84,8 +86,8 @@ phab <-phab_org%>%
 #"RPGT50","PCT_SA","RB3","REYP3","RRPW3","PCT_POOL","RPXDEP_CM", "RPMXDEP_CM"
 # "XFC_BRS", "XFC_OHV","XFC_BIG","XFC_UCB","XCM","XPCAN","XPCM","XPCMG","W1H_LOG",
 
-strcat <-strcat_org%>%
-  select("SITE_ID",
+strcat_red <-strcat_org%>%
+  select("UNIQUE_ID",
          "CatAreaSqKm","WsAreaSqKm","CatAreaSqKmRp100","WsAreaSqKmRp100",
          "HydrlCondWs","OMHWs",
          "RdDensWs","RdDensWsRp100","RdDens_WS_PctFull","RdDens_RipBuf100_WS_PctFullRp100",
@@ -125,6 +127,27 @@ strcat <-strcat_org%>%
          "PSUMPY_2008Ws","PSUMPY_2008_PT","PSUMPY_2009Ws","PSUMPY_2009_PT",
          "MAST_2008","MAST_2009","MSST_2008","MSST_2009","MWST_2008","MWST_2009")
 
+###################
+# STREAMCAT CATCHMENT SCALE - Compiled using the StreamCat Tool R package 8/15/23
+strcat_nlcd_red<-strcat_nlcd%>%
+  select("UNIQUE_ID","COMID",
+         "PCTOW2008CAT","PCTICE2008CAT","PCTURBOP2008CAT","PCTURBLO2008CAT","PCTURBMD2008CAT","PCTURBHI2008CAT",
+         "PCTDECID2008CAT","PCTCONIF2008CAT","PCTMXFST2008CAT",
+         "PCTSHRB2008CAT","PCTGRS2008CAT",
+         "PCTHAY2008CAT","PCTCROP2008CAT",
+         "PCTWDWET2008CAT","PCTHBWET2008CAT",
+         "PCTOW2008CATRP100","PCTICE2008CATRP100",
+         "PCTURBOP2008CATRP100","PCTURBLO2008CATRP100","PCTURBMD2008CATRP100","PCTURBHI2008CATRP100",
+         "PCTDECID2008CATRP100","PCTCONIF2008CATRP100","PCTMXFST2008CATRP100",
+         "PCTSHRB2008CATRP100","PCTGRS2008CATRP100",
+         "PCTHAY2008CATRP100","PCTCROP2008CATRP100",
+         "PCTWDWET2008CATRP100","PCTHBWET2008CATRP100",
+         "PCTIMP2008CAT","PCTIMP2008CATRP100","PCTAGDRAINAGEWS","PCTAGDRAINAGECAT")
+
+# MERGE STREAMCAT SUBSETS
+strcat_tot<-left_join(strcat_red,strcat_nlcd_red,by="UNIQUE_ID")
+summary(strcat_tot$PCTAGDRAINAGECAT)
+
 #####################
 ## PROCESS DATA WITH MULTIPLE SURVEYS _ SELECT 2008-09
 benthic_oe_org$DATE_COL<-as.Date(benthic_oe_org$DATE_COL, format="%m/%d/%Y")
@@ -156,7 +179,7 @@ test<-phab_oe%>%
 names(wqii_org)
 wqii<- wqii_org%>%
   filter(YEAR==2008|YEAR==2009)%>%
-  select(c("SITE_ID","VISIT_NO","RT_WQI",
+  select(c("SITE_ID","VISIT_NO","UNIQUE_ID","RT_WQI",
            "CL_pt","SO4_pt","PTL_pt","NTL_pt",
            "TURB_pt","ENTERO_PT",
            "DO_PT","PH_PT","NUMVARN","WQII"))
@@ -169,7 +192,7 @@ isotope_org$YEAR <-format(isotope_org$DATE_COL,"%Y")
 table(isotope_org$YEAR)
 
 isotope <- isotope_org%>%
-  select(c("SITE_ID","VISIT_NO","SAMPLE_ID","dD..vsmow.","d18O..vsmow.","d.excess"))
+  select(c("SITE_ID","VISIT_NO","SAMPLE_ID","dD (vsmow)","d18O (vsmow)","d-excess"))#"dD..vsmow.","d18O..vsmow.",
 length(unique(isotope$SITE_ID))#2063
 
 # Check for duplicates n=613 (I think these must be lab duplicates for QAQC)
@@ -178,18 +201,18 @@ test<-isotope%>%
   filter(n()>1)
 
 # WRITE REDUCED DATASETS TO NEW FOLDER TO MERGE
-write.csv(site_org,"data_to_merge_0809/a_site.csv", row.names=FALSE)
-write.csv(bent,"data_to_merge_0809/b_benth.csv", row.names=FALSE)
-write.csv(benthic_oe,"data_to_merge_0809/c_benth_oe.csv", row.names=FALSE)
-write.csv(chem,"data_to_merge_0809/c_chem.csv", row.names=FALSE)
-write.csv(phab,"data_to_merge_0809/e_phab.csv", row.names=FALSE)
+write_csv(site_org,"data_to_merge_0809/a_site.csv")
+write_csv(bent,"data_to_merge_0809/b_benth.csv")
+write_csv(benthic_oe,"data_to_merge_0809/c_benth_oe.csv")
+write_csv(chem,"data_to_merge_0809/c_chem.csv")
+write_csv(phab,"data_to_merge_0809/e_phab.csv")
 
-write.csv(phab_oe,"data_to_merge_0809/f_phab_oe.csv", row.names=FALSE)
-write.csv(wqii,"data_to_merge_0809/g_wqii.csv", row.names=FALSE)
-write.csv(isotope,"data_to_merge_0809/h_isotope.csv", row.names=FALSE)
+write_csv(phab_oe,"data_to_merge_0809/f_phab_oe.csv")
+write_csv(wqii,"data_to_merge_0809/g_wqii.csv")
+write_csv(isotope,"data_to_merge_0809/h_isotope.csv")
 
 # Save in processed data folder
-write.csv(strcat,"data_processed/subset_streamcat0809.csv", row.names=FALSE)
+write_csv(strcat_tot,"data_processed/subset_streamcat0809.csv")
 
 #########
 ## Use multi-merge function to bring data together
@@ -212,6 +235,7 @@ table(nrsa_v1$AG_ECO5)
 nrsa_v1$AG_ECO5<-ordered(nrsa_v1$AG_ECO5, levels=c("West", "Great Plains","Midwest",
                                                    "Appalachians","Coastal Plains"))
 
+
 ####################
 # Drop duplicate observations and retain first observation (even though isotope values are different)
 # https://www.codecademy.com/courses/learn-dplyr/lessons/r-data-cleaning/exercises/duplicates#:~:text=To%20check%20for%20duplicates%2C%20we,which%20rows%20are%20duplicate%20rows.&text=We%20can%20see%20that%20the,calories%2C%20is%20a%20duplicate%20row.
@@ -230,16 +254,16 @@ length(unique(nrsa1_0809$SITE_ID)) # n = 2123
 #usethis::use_data(nrsa_proc,overwrite=TRUE)
 
 # EXPLORE DATA AS .csv files
-write.csv(nrsa_v2,"data_processed/nrsa0809_all.csv",row.names = FALSE)
-write.csv(nrsa1_0809,"data_processed/nrsa0809_visit1.csv",row.names = FALSE)
+write_csv(nrsa_v2,"data_processed/nrsa0809_all.csv")
+write_csv(nrsa1_0809,"data_processed/nrsa0809_visit1.csv")
 
 
 ###########################
 ## MERGE STREAMCAT VARS
 # Merge processed NRSA and StreamCat datasets together using left_join
-nrsa_strmcatv1<-left_join(nrsa_v2,strcat,
-                          by="SITE_ID")
-# n = 2303 obs with 301 variables
+nrsa_strmcatv1<-left_join(nrsa_v2,strcat_tot,
+                          by="UNIQUE_ID")
+# n = 2303 obs with 337 variables
 
 #############
 ## DATA PROCESSING
@@ -311,18 +335,18 @@ nrsa_strmcat1<-nrsa_strmcat_proc %>%
 length(unique(nrsa_strmcat1$SITE_ID)) # n = 2123
 
 # EXPORE DATA AS .csv files
-write.csv(nrsa_strmcat_proc,"data_processed/nrsa0809/nrsa0809_strmcat_all.csv",row.names = FALSE)
-write.csv(nrsa_strmcat1,"data_processed/nrsa0809/nrsa0809_strmcat_visit1.csv",row.names = FALSE)
+write_csv(nrsa_strmcat_proc,"data_processed/nrsa0809/nrsa0809_strmcat_all.csv")
+write_csv(nrsa_strmcat1,"data_processed/nrsa0809/nrsa0809_strmcat_visit1.csv")
 
 # Column names
 dat_names<-data.frame(colnames(nrsa_strmcat1))
-write.csv(dat_names,"data_processed/nrsa0809/column_vars0809.csv",row.names = FALSE)
+write_csv(dat_names,"data_processed/nrsa0809/column_vars0809.csv")
 
 
 ################################
 ## PROCESS DATA TO BE ABLE TO MERGE WITH OTHER SURVEYS
 ## READ PROCESSED DATA n = 2303
-nrsa_strmcat_proc<-read.csv("data_processed/nrsa0809/nrsa0809_strmcat_all.csv")
+nrsa_strmcat_proc<-read_csv("data_processed/nrsa0809/nrsa0809_strmcat_all.csv")
 
 # RENAME VARS TO MATCH OTHER SURVEYS
 nrsa_strmcat_proc<-nrsa_strmcat_proc%>%
@@ -364,7 +388,39 @@ nrsa_strmcat_proc <-nrsa_strmcat_proc %>%
          PCTWDWET_WsRp100=PctWdWet2008_WsRp100,
          PCTHBWET_WsRp100=PctHbWet2008_WsRp100,
          PCTIMP_WS=PctImp2008Ws,
-         PCTIMP_WsRp100=PctImp2008WsRp100)%>%
+         PCTIMP_WsRp100=PctImp2008WsRp100,
+         PCTOW_CAT=PCTOW2008CAT,
+         PCTICE_CAT=PCTICE2008CAT,
+         PCTURBOP_CAT=PCTURBOP2008CAT,
+         PCTURBLO_CAT=PCTURBLO2008CAT,
+         PCTURBMD_CAT=PCTURBMD2008CAT,
+         PCTURBHI_CAT=PCTURBHI2008CAT,
+         PCTDECID_CAT=PCTDECID2008CAT,
+         PCTCONIF_CAT=PCTCONIF2008CAT,
+         PCTMXFST_CAT=PCTMXFST2008CAT,
+         PCTSHRB_CAT=PCTSHRB2008CAT,
+         PCTGRS_CAT=PCTGRS2008CAT,
+         PCTHAY_CAT=PCTHAY2008CAT,
+         PCTCROP_CAT=PCTCROP2008CAT,
+         PCTWDWET_CAT=PCTWDWET2008CAT,
+         PCTHBWET_CAT=PCTHBWET2008CAT,
+         PCTOW_CATRP100=PCTOW2008CATRP100,
+         PCTICE_CATRP100=PCTICE2008CATRP100,
+         PCTURBOP_CATRP100=PCTURBOP2008CATRP100,
+         PCTURBLO_CATRP100=PCTURBLO2008CATRP100,
+         PCTURBMD_CATRP100=PCTURBMD2008CATRP100,
+         PCTURBHI_CATRP100=PCTURBHI2008CATRP100,
+         PCTDECID_CATRP100=PCTDECID2008CATRP100,
+         PCTCONIF_CATRP100=PCTCONIF2008CATRP100,
+         PCTMXFST_CATRP100=PCTMXFST2008CATRP100,
+         PCTSHRB_CATRP100=PCTSHRB2008CATRP100,
+         PCTGRS_CATRP100=PCTGRS2008CATRP100,
+         PCTHAY_CATRP100=PCTHAY2008CATRP100,
+         PCTCROP_CATRP100=PCTCROP2008CATRP100,
+         PCTWDWET_CATRP100=PCTWDWET2008CATRP100,
+         PCTHBWET_CATRP100=PCTHBWET2008CATRP100,
+         PCTIMP_CAT=PCTIMP2008CAT,
+         PCTIMP_CATRP100=PCTIMP2008CATRP100)%>%
   select(-c(PctOw2008Ws, PctIce2008Ws, PctUrbOp2008Ws, PctUrbLo2008Ws, PctUrbMd2008Ws, PctUrbHi2008Ws,
             PctDecid2008Ws, PctConif2008Ws, PctMxFst2008Ws, PctShrb2008Ws, PctGrs2008Ws,
             PctHay2008Ws, PctCrop2008Ws, PctWdWet2008Ws, PctHbWet2008Ws,
@@ -373,7 +429,16 @@ nrsa_strmcat_proc <-nrsa_strmcat_proc %>%
             PctDecid2008_WsRp100, PctConif2008_WsRp100, PctMxFst2008_WsRp100,
             PctShrb2008_WsRp100, PctGrs2008_WsRp100, PctHay2008_WsRp100, PctCrop2008_WsRp100,
             PctWdWet2008_WsRp100, PctHbWet2008_WsRp100, PctImp2008Ws,
-            PctImp2008WsRp100))
+            PctImp2008WsRp100,
+            PCTOW2008CAT,PCTICE2008CAT,PCTURBOP2008CAT,PCTURBLO2008CAT,PCTURBMD2008CAT,PCTURBHI2008CAT,
+            PCTDECID2008CAT,PCTCONIF2008CAT,PCTMXFST2008CAT,PCTSHRB2008CAT,PCTGRS2008CAT,
+            PCTHAY2008CAT,PCTCROP2008CAT,PCTWDWET2008CAT,PCTHBWET2008CAT,
+            PCTOW2008CATRP100,PCTICE2008CATRP100,PCTURBOP2008CATRP100,PCTURBLO2008CATRP100,PCTURBMD2008CATRP100,PCTURBHI2008CATRP100,
+            PCTDECID2008CATRP100,PCTCONIF2008CATRP100,PCTMXFST2008CATRP100,
+            PCTSHRB2008CATRP100,PCTGRS2008CATRP100,
+            PCTHAY2008CATRP100,PCTCROP2008CATRP100,
+            PCTWDWET2008CATRP100,PCTHBWET2008CATRP100,
+            PCTIMP2008CAT,PCTIMP2008CATRP100))
 
 # CALCULATE XMW (woody riparian vegetation in understory)
 # XCMGW - XC - XGW = XMW
@@ -420,17 +485,25 @@ nrsa0809<-nrsa_strmcat_proc%>%
            "PCTURBMD_WsRp100","PCTURBHI_WsRp100", "PCTDECID_WsRp100", "PCTCONIF_WsRp100", "PCTMXFST_WsRp100",
            "PCTSHRB_WsRp100", "PCTGRS_WsRp100", "PCTHAY_WsRp100", "PCTCROP_WsRp100",
            "PCTWDWET_WsRp100", "PCTHBWET_WsRp100", "PCTIMP_WS", "PCTIMP_WsRp100",
+           "PCTAGDRAINAGEWS","PCTAGDRAINAGECAT",
+           "PCTOW_CAT","PCTICE_CAT","PCTURBOP_CAT","PCTURBLO_CAT","PCTURBMD_CAT","PCTURBHI_CAT",
+           "PCTDECID_CAT","PCTCONIF_CAT","PCTMXFST_CAT","PCTSHRB_CAT","PCTGRS_CAT",
+           "PCTHAY_CAT","PCTCROP_CAT","PCTWDWET_CAT","PCTHBWET_CAT",
+           "PCTOW_CATRP100","PCTICE_CATRP100","PCTURBOP_CATRP100","PCTURBLO_CATRP100","PCTURBMD_CATRP100","PCTURBHI_CATRP100",
+           "PCTDECID_CATRP100","PCTCONIF_CATRP100","PCTMXFST_CATRP100","PCTSHRB_CATRP100","PCTGRS_CATRP100",
+           "PCTHAY_CATRP100","PCTCROP_CATRP100","PCTWDWET_CATRP100","PCTHBWET_CATRP100",
+           "PCTIMP_CAT","PCTIMP_CATRP100",
            "NABD_DensWs","NABD_NIDStorWs","NABD_NrmStorWs",
            "RdDensWs","RdDensWsRp100",
            "PopDen2010Ws","PopDen2010WsRp100",
            "AgKffactWs","FertWs","ManureWs","NPDESDensWs","NPDESDensWsRp100"))
 
-#n = 2123 with 190 variables
+#n = 2123 with 224 variables
 #######################
 #GET COLUMN NAMES TO CHECK
 dat_names_share<-data.frame(colnames(nrsa0809))
-write.csv(dat_names_share,"data_processed/nrsa0809/column_varsToCompile_0809.csv", row.names=FALSE)
+write_csv(dat_names_share,"data_processed/nrsa0809/column_varsToCompile_0809.csv")
 
 ## WRITE TO CSV
-write.csv(nrsa0809,"data_processed/nrsa0809/nrsa0809_to_merge.csv", row.names=FALSE)
+write_csv(nrsa0809,"data_processed/nrsa0809/nrsa0809_to_merge.csv")
 

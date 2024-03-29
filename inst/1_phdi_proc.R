@@ -2,10 +2,10 @@
 ## ADD PHDI DATA - MARC EMAILED PROCESSED DATA 5/23/2022 & 5/25/22
 # Read in relevant data sets
 ## FULL NRSA WITH VISITS 1 and 2 n = 6674
-nrsa<- read.csv("data_processed/Compiled/NRSA_081318_all.csv")
+nrsa<- read_csv("data_processed/Compiled/NRSA_081318_all.csv")
 
 # PHDI dataset n=13076 - Marc added nine sites that were missing PHDI values from earlier rendition
-phdi<-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/Climate/nrsa_phdi_allyearsmonths_v3.csv")
+phdi<-read_csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/Climate/nrsa_phdi_allyearsmonths_v3.csv")
 
 # SUBSET NRSA data to include UNIQUE_ID, SITE_ID, DATE_COL, YEAR
 nrsa_red <- nrsa%>%
@@ -230,4 +230,4 @@ length(unique(phdi_miss$LON_DD83))
 #########################
 ## WRITE PHDI FILES
 
-write.csv(dat_mod_phdi,"data_processed/Compiled/phdi_mean_month.csv", row.names=FALSE)
+write_csv(dat_mod_phdi,"data_processed/Compiled/phdi_mean_month.csv")

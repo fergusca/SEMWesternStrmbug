@@ -11,16 +11,16 @@ rm(list=ls())
 library(tidyverse)
 
 ###############
-## READ PROCESSED NRSA-STREAMCAT DATA - vars = 185 or 182
+## READ PROCESSED NRSA-STREAMCAT DATA - vars = 222
 ##  Processed data are in the R project (C:drive)
 # NRSA 2008-09 n = 2303
-nrsa0809 <- read.csv("data_processed/nrsa0809/nrsa0809_to_merge.csv")
+nrsa0809 <- read_csv("data_processed/nrsa0809/nrsa0809_to_merge.csv")
 
 # NRSA 2013-14 n = 2261
-nrsa1314 <- read.csv("data_processed/nrsa1314/nrsa1314_to_merge.csv")
+nrsa1314 <- read_csv("data_processed/nrsa1314/nrsa1314_to_merge.csv")
 
 # NRSA 2018-19 n = 2110
-nrsa1819 <- read.csv("data_processed/nrsa1819/nrsa1819_to_merge.csv")
+nrsa1819 <- read_csv("data_processed/nrsa1819/nrsa1819_to_merge.csv")
 
 
 ##################
@@ -77,6 +77,14 @@ nrsa1819<-nrsa1819%>%
            "PCTURBMD_WsRp100","PCTURBHI_WsRp100", "PCTDECID_WsRp100", "PCTCONIF_WsRp100", "PCTMXFST_WsRp100",
            "PCTSHRB_WsRp100", "PCTGRS_WsRp100", "PCTHAY_WsRp100", "PCTCROP_WsRp100",
            "PCTWDWET_WsRp100", "PCTHBWET_WsRp100", "PCTIMP_WS", "PCTIMP_WsRp100",
+           "PCTAGDRAINAGEWS","PCTAGDRAINAGECAT",
+           "PCTOW_CAT","PCTICE_CAT","PCTURBOP_CAT","PCTURBLO_CAT","PCTURBMD_CAT","PCTURBHI_CAT",
+           "PCTDECID_CAT","PCTCONIF_CAT","PCTMXFST_CAT","PCTSHRB_CAT","PCTGRS_CAT",
+           "PCTHAY_CAT","PCTCROP_CAT","PCTWDWET_CAT","PCTHBWET_CAT",
+           "PCTOW_CATRP100","PCTICE_CATRP100","PCTURBOP_CATRP100","PCTURBLO_CATRP100","PCTURBMD_CATRP100","PCTURBHI_CATRP100",
+           "PCTDECID_CATRP100","PCTCONIF_CATRP100","PCTMXFST_CATRP100","PCTSHRB_CATRP100","PCTGRS_CATRP100",
+           "PCTHAY_CATRP100","PCTCROP_CATRP100","PCTWDWET_CATRP100","PCTHBWET_CATRP100",
+           "PCTIMP_CAT","PCTIMP_CATRP100",
            "NABD_DensWs","NABD_NIDStorWs","NABD_NrmStorWs",
            "RdDensWs","RdDensWsRp100",
            "PopDen2010Ws","PopDen2010WsRp100",
@@ -132,7 +140,7 @@ table(all_dat$nrsa_survey)
 #2303     2261     2110
 
 # GRAB UNIQUE ID THAT CAN BE USED TO CROSSWALK AMONG THREE SURVEYS - IN WQII
-wqii_org<-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/WQII/wqii_nrsa.csv")
+wqii_org<-read_csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/WQII/wqii_nrsa.csv")
 wqii<-wqii_org%>%
   select(c("SITE_ID","VISIT_NO","YEAR","UNIQUE_ID"))
 
@@ -148,7 +156,7 @@ table(all_dat_wid$nrsa_survey)
 #####################
 ## GRAB OMERNIK ECOREGION NAMES
 # NRSA 2013-14
-site_org <-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_1213_website/nrsa1314_siteinformation_wide_04292019.csv")
+site_org <-read_csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_1213_website/nrsa1314_siteinformation_wide_04292019.csv")
 # GET DISTINCT LEVEL III
 l3<-site_org%>%
   distinct(US_L3CODE, .keep_all=TRUE)%>%
@@ -221,7 +229,7 @@ nrsa1819_subset <- all_dat_id %>%
 ########################
 ## CREATE NEW COLUMN INDICATING WHETHER RESAMPLED SITE
 # READ IN FULL NRSA COMPILED DATASET
-#all_dat_id<-read.csv("data_processed/Compiled/NRSA_081318_all.csv")
+#all_dat_id<-read_csv("data_processed/Compiled/NRSA_081318_all.csv")
 
 # ONLY IN 2008-09 (n = 1420)
 nrsa0809_only<-all_dat_id%>%
@@ -273,7 +281,7 @@ table(all_dat_re$RESAMPLE)
 ######################
 ## MASTER LIST OF NRSA SITES AND RT_MASTER designation (Email from Darin 10/28/22)
 #   n=8640 from 2000-2019
-ref_nrsa<-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_site_R_T/sample.info_12022021.csv")
+ref_nrsa<-read_csv("data/sample.info_12022021.csv")
 
 ref_nrsa<-ref_nrsa%>%
   select(SITE_ID,YEAR,VISIT_NO,DOY,RT_MASTER)
@@ -347,7 +355,15 @@ all_dat_resample <-all_dat_resample%>%
          PCTWET_WsRp100 = PCTHBWET_WsRp100+PCTWDWET_WsRp100,
          PCTFOR_WsRp100 = PCTMXFST_WsRp100+PCTCONIF_WsRp100+PCTDECID_WsRp100,
          PCTNATTERR_WsRp100 = PCTDECID_WsRp100 + PCTCONIF_WsRp100 + PCTMXFST_WsRp100 + PCTSHRB_WsRp100 + PCTGRS_WsRp100,
-         PCTNAT_WsRp100 = PCTNATTERR_WsRp100 + PCTWET_WsRp100)
+         PCTFORGRS_WsRp100 = PCTDECID_WsRp100 + PCTCONIF_WsRp100 + PCTMXFST_WsRp100 + PCTGRS_WsRp100,
+         PCTNAT_WsRp100 = PCTNATTERR_WsRp100 + PCTWET_WsRp100,
+         PCTAGR_CAT = PCTHAY_CAT+PCTCROP_CAT,
+         PCTURB_CAT = PCTURBOP_CAT+PCTURBLO_CAT+PCTURBMD_CAT+PCTURBHI_CAT,
+         PCTAGR_CATRP100 = PCTHAY_CATRP100 + PCTCROP_CATRP100,
+         PCTURB_CATRP100 = PCTURBOP_CATRP100+PCTURBLO_CATRP100+PCTURBMD_CATRP100+PCTURBHI_CATRP100,
+         PCTFORGRS_CAT = PCTDECID_CAT + PCTCONIF_CAT +PCTMXFST_CAT +PCTGRS_CAT,
+         PCTFORGRS_CATRP100 = PCTDECID_CATRP100+PCTCONIF_CATRP100+PCTMXFST_CATRP100+PCTGRS_CATRP100)
+
 summary(all_dat_resample$PCTURB_WsRp100)
 summary(all_dat_resample$PCTWET_WsRp100)
 
@@ -378,8 +394,18 @@ all_dat_resample <- all_dat_resample%>%
          asin_PCTURB_WsRp100 = asin(sqrt(PCTURB_WsRp100_mod/100)),
          PCTNATTERR_WsRp100_mod=floor(PCTNATTERR_WsRp100),
          asin_PCTNATTERR_WsRp100 = asin(sqrt(PCTNATTERR_WsRp100_mod/100)),
+         PCTFORGRS_WsRp100_mod=floor(PCTFORGRS_WsRp100),
+         asin_PCTFORGRS_WsRp100=asin(sqrt(PCTFORGRS_WsRp100_mod/100)),
          PCTNAT_WsRp100_mod = floor(PCTNAT_WsRp100),
-         asin_PCTNAT_WsRp100 = asin(sqrt(PCTNAT_WsRp100_mod/100)))
+         asin_PCTNAT_WsRp100 = asin(sqrt(PCTNAT_WsRp100_mod/100)),
+         asin_PCTFORGRS_CAT=asin(sqrt(PCTFORGRS_CAT/100)),
+         asin_PCTFORGRS_CATRP100=asin(sqrt(PCTFORGRS_CATRP100/100)),
+         PCTURB_CAT_mod = floor(PCTURB_CAT),
+         asin_PCTURB_CAT = asin(sqrt(PCTURB_CAT_mod/100)),
+         asin_PCTAGR_CAT = asin(sqrt(PCTAGR_CAT/100)),
+         PCTURB_CATRP100_mod = floor(PCTURB_CATRP100),
+         asin_PCTURB_CATRP100 = asin(sqrt(PCTURB_CATRP100_mod/100)),
+         asin_PCTAGR_CAT = asin(sqrt(PCTAGR_CATRP100/100)))
 
 # STREAM MORPH TRANSFORMATIONS
 all_dat_resample <-all_dat_resample %>%
@@ -402,10 +428,10 @@ summary(all_dat_resample$L_RdDensWs)
 #################
 # 5/4/2022
 # READ IN PROCESSED DATA - COMPILED THREE SURVEYS, VISITS 1 & 2 n=6674
-#dat<- read.csv("data_processed/Compiled/NRSA_081318_all.csv")
+#dat<- read_csv("data_processed/Compiled/NRSA_081318_all.csv")
 
 # MMI and EPT Alan Emailed 4/25/22
-mmi <- read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/NRSA_benthic_indices/NRSA_BUGS_2022_0425.csv")
+mmi <- read_csv("data/NRSA_BUGS_2022_0425.csv")
 names(mmi)
 #  "SITE_ID"   "YEAR" "VISIT_NO"  "EPT_RICH"  "UNIQUE_ID" "MMI_BENT"
 # REDUCE MMI data to just unique ID and indices
@@ -433,12 +459,12 @@ var(all_dat_resample2$EPT_RICH_sc,na.rm = T) #[1] 0.3785358
 # OE
 #var(all_dat_resample2$OE_SCORE,na.rm=T) #[1] 0.09672672
 # WRITE PROCESSED DATASET TILL THIS FAR
-write.csv(all_dat_resample2,"data_processed/Compiled/NRSA_081318_all.csv")
+write_csv(all_dat_resample2,"data_processed/Compiled/NRSA_081318_all.csv")
 
 #####################
 ## READ IN PROCESSED PHDI data 5/26/22 n = 6674, 4 vars
 #   Calculated survey year mean PHDI and PHDI for month sample was collected
-phdi<-read.csv("data_processed/Compiled/phdi_mean_month.csv")
+phdi<-read_csv("data_processed/Compiled/phdi_mean_month.csv")
 
 # MERGE WITH PROCESSED NRSA DATA n = 6674
 all_dat_resample3 <-left_join(all_dat_resample2, phdi,
@@ -502,21 +528,21 @@ table(all_dat_resample3$ECO_L3_4_mod)
 ######################
 ## ADD INDIVIDUAL O and E values 9/6/2022 and 11/2/2022
 ## NRSA CROSSWALK UID
-uid<-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/O_E_components/NRSA_UID_Crosswalk.csv")
+uid<-read_csv("data/NRSA_UID_Crosswalk.csv")
 
 # DATASETS WITH O and E components - Need to crosswalk old UID with updated UIDs for the 0809 and 1314 datasets
 ## NRSA O & E 0809
 #    note there are many observations with old UIDs that start with 500 that are not part of the NRSA survey but have bug information
-oe_0809<-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/O_E_components/all.sites.OE.scores.cal-val-test.csv")
+oe_0809<-read_csv("data/all.sites.OE.scores.cal-val-test.csv")
 # Rename UID column to indicate old version
 oe_0809 <- oe_0809%>%
   rename("old_UID"="UID")
 
 ## NRSA O & E 1314
-oe_1314<-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/O_E_components/new.sites.OE.scores.csv")
+oe_1314<-read_csv("data/new.sites.OE.scores.csv")
 # Rename first column to be UID
 oe_1314<-oe_1314%>%
-  rename("old_UID"="X")
+  rename("old_UID"="...1")
 names(oe_1314)
 
 ##################
@@ -535,7 +561,7 @@ table(oe_0809_proc$SOURCE_STUDYNAME)
 # RENAME DESTINATION ID to UID
 oe_0809_proc<- oe_0809_proc%>%
   rename("UID"="DESTINATION_ID")%>%
-  select(!c(X, GROUP, ECO3,nUID,old_UID,SOURCE_STUDYNAME,DESTINATION_STUDYNAME))
+  select(!c(...1,GROUP, ECO3,nUID,old_UID,SOURCE_STUDYNAME,DESTINATION_STUDYNAME))
 names(oe_0809_proc)
 
 # Join 1314 O & E with crosswalk table
@@ -555,7 +581,7 @@ names(oe_1314_proc)
 
 ##############
 ## NRSA O & E 1819 - don't need to update UID bc Karen did
-oe_1819<-read.csv("C:/Users/EFergus/OneDrive - Environmental Protection Agency (EPA)/a_NLA_OE_project/Data/O_E_components/NRSA1819_OE_scores_updUIDs.csv")
+oe_1819<-read_csv("data/NRSA1819_OE_scores_updUIDs.csv")
 
 
 ################
@@ -569,7 +595,7 @@ nrsa1819<-all_dat_resample3%>%
 
 # MERGE processed data with O and E based on UID
 # NRSA 0809 n = 22303
-nrsa_oe_0809<-left_join(nrsa0809,oe_0809_proc, by=c("UID"="UID"),multiple="all")#n=97671
+nrsa_oe_0809<-left_join(nrsa0809,oe_0809_proc, by=c("UID"="UID"),multiple="all",relationship = 'many-to-many')#n=97671
 length(unique(nrsa_oe_0809$UID))# 2248
 #head(nrsa_oe_0809)
 summary(nrsa_oe_0809$E)
@@ -587,7 +613,7 @@ nrsa_oe_0809<-nrsa_oe_0809%>%
 # NRSA 1314 n = 2261
 nrsa_oe_1314<- left_join(nrsa1314, oe_1314_proc, by=c("UID"="UID")) #n=2261
 length(unique(nrsa_oe_1314$UID))#n=2256
-table(nrsa_oe_1314$SOURCE_STUDYNAME)
+
 
 ################
 ## NRSA 1819 n=2110
@@ -599,11 +625,99 @@ nrsa_oe_all<-bind_rows(nrsa_oe_0809,nrsa_oe_1314,nrsa_oe_1819)
 
 #################
 ## EXPORT CSV OF COMPILED DATA - ALL OBSERVATIONS, ALL SURVEYS VISITS 1 & 2
-write.csv(nrsa_oe_all,"data_processed/Compiled/NRSA_081318_all_O_E.csv", row.names=FALSE)
+write_csv(nrsa_oe_all,"data_processed/Compiled/NRSA_081318_all_O_E.csv")
 
 #COLUMN NAMES
 dat_names<-data.frame(colnames(nrsa_oe_all))
-write.csv(dat_names,"data_processed/Compiled/column_vars_O_E.csv",row.names = FALSE)
+write_csv(dat_names,"data_processed/Compiled/column_vars_O_E.csv")
+
+
+
+##########
+## READ NRSA WEIGHTS (from Karen Blocksom 7/12/23) - on O:drive\PRIV\CPHEA\PESD\COR\ARM Data\NRSA_Comb_2008_2019\NRSA_2008-2019_CombinedSurvey_Weights.csv
+nrsa_wgts<-read_csv("data/NRSA_2008-2019_CombinedSurvey_Weights.csv")
+#usethis::use_data(nrsa_wgts)
+
+###########
+## READ GRAZING VARIABLES (from Marc Potential Grazing Unit w/Cattle 8/3/23; Potential Grazing Habitat 8/7/23)
+# Marc emailed potential cow habitat output used to calculate potential unit grazing
+# Based on Topographic Position Index, Water Proximity, NLCD weighted vegetation type, Ownership (restrictions on grazing), and slope
+# I changed column names bc was given same label as PUG
+# n=4389
+graze_hab <-read_csv("data/NRSA_081318_GrazingIndex_habitat.csv")
+graz_hab_red<-graze_hab%>%
+  select(SITE_ID,VISIT_NO,YEAR,COMID,GrazingHabitatCat,GrazingHabitatWs)
+
+#Potential Unit Grazing scaled by cattle density - not showing much of a relationship with O/E or instream conditions
+graze <-read_csv("data/NRSA_081318_GrazingIndex_correct_COMID.csv")
+graz_red<-graze%>%
+  select(SITE_ID,VISIT_NO,YEAR,GrazingPotentialCat,GrazingPotentialWs)
+
+# LEFT JOIN GRAZING DATASETS
+graze_join<- left_join(graz_hab_red,graz_red,
+                       by=c("SITE_ID","VISIT_NO","YEAR"))
+
+###################
+# LEFT JOIN processed NRSA data with weights n=6674 w/316 vars
+nrsa_proc2<-left_join(nrsa_oe_all,nrsa_wgts,by=c('UNIQUE_ID',"SITE_ID"))
+summary(nrsa_proc2$WGT_TP)
+#Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's
+#   2.54   67.36  133.49  390.71  468.04 5933.86     920
+
+# There are some sites without weights - not sure why
+# SEE which sites in the compiled NRSA data are not in the weight dataset
+unique_id_wgts<-nrsa_wgts$UNIQUE_ID
+no_wgts<-nrsa_oe_all%>%
+  filter(!UNIQUE_ID %in%unique_id_wgts)%>%
+  select(SITE_ID,VISIT_NO,YEAR,STATE,UNIQUE_ID,nrsa_survey)
+table(no_wgts$YEAR)
+
+# LEFT JOIN processed NRSA with grazing vars n= 6674 w/321 vars
+dat_proc3<-left_join(nrsa_proc2,graze_join,by=c("SITE_ID","VISIT_NO","YEAR"))
+
+#############
+## REVISED NRSA HABITAT HETEROGENEITY METRIC
+#  Phil revised an instream habitat metric that captures presence of different habitat types at the stream site
+#  1/30/24
+#################
+## LOAD PROCESSED HABITAT DATA - original files from Phil 1/30 and 1/31/24
+hab<-read_csv("data/NRSA_habcomplex_0819.csv")
+
+# Variables to drop
+myvars<-c("UID","COMID","LAT_DD83","LON_DD83","REALM","XFC_ALG","XFC_AQM","XFC_LWD","XFC_NAT")
+hab_red<-hab%>%
+  select(!all_of(myvars))
+
+# Some duplicated observations
+# https://stackoverflow.com/questions/6986657/find-duplicated-rows-based-on-2-columns-in-data-frame-in-r
+hab_dup<-hab_red%>%
+  group_by(SITE_ID,VISIT_NO,YEAR)%>%
+  mutate(num_dups = n(),
+         dup_id = row_number())%>%
+  ungroup()%>%
+  mutate(is_duplicated = dup_id >1)
+
+hab_dup_only<-hab_dup%>%
+  filter(is_duplicated==TRUE)
+
+hab_dist<-hab_red%>%
+  distinct(SITE_ID,VISIT_NO,YEAR, .keep_all = T)
+
+##################
+## JOIN processed habitat data to processed NRSA data
+#  n = 6674
+dat_proc<-left_join(dat_proc3,hab_dist,by=c("SITE_ID","VISIT_NO","YEAR"))
+
+
+#################
+## EXPORT CSV OF COMPILED DATA - ALL OBSERVATIONS, ALL SURVEYS VISITS 1 & 2
+write_csv(dat_proc,"data_processed/Compiled/NRSA_081318_all_O_E.csv")
+
+#COLUMN NAMES
+dat_names<-data.frame(colnames(dat_proc))
+write_csv(dat_names,"data_processed/Compiled/column_vars_O_E.csv")
+
+
 
 
 ####################
@@ -613,19 +727,19 @@ write.csv(dat_names,"data_processed/Compiled/column_vars_O_E.csv",row.names = FA
 #  INCLUDES VISIT 1 & 2
 
 # NRSA0809 n = 2303
-nrsa0809_subset<- nrsa_oe_all%>%
+nrsa0809_subset<- dat_proc%>%
   filter(nrsa_survey=="nrsa0809")
 
 # SUBSET NRSA1314 data by dropping observations with same UNIQUE_ID as NRSA0809
 # n = 1283 out of 2069
-nrsa1314_subset<-nrsa_oe_all%>%
+nrsa1314_subset<-dat_proc%>%
   filter(nrsa_survey=="nrsa1314")%>%
   filter(!UNIQUE_ID %in%siteid_0809)
 
 # SUBSET NRSA1819 by dropping sites sampled in 0809 and/or 1314
 # 1560 - after dropping NRSA0809 duplicates
 # 992 obs - after dropping NRSA1314 duplicates
-nrsa1819_subset <- nrsa_oe_all%>%
+nrsa1819_subset <- dat_proc%>%
   filter(nrsa_survey=="nrsa1819")%>%
   filter(!UNIQUE_ID %in% siteid_0809) %>%
   filter(!UNIQUE_ID %in% siteid_1314)
@@ -633,7 +747,7 @@ nrsa1819_subset <- nrsa_oe_all%>%
 ###################
 ## BRING SUBSETS TOGETHER
 nrsa_all<-bind_rows(nrsa0809_subset,nrsa1314_subset,nrsa1819_subset)
-# n = 4578 w/262 vars
+# n = 4578 w/342 vars
 
 table(nrsa_all$nrsa_survey,nrsa_all$VISIT_NO)
 #              1    2
@@ -645,7 +759,7 @@ table(nrsa_all$nrsa_survey,nrsa_all$VISIT_NO)
 ## SELECT VISIT_NO=1
 nrsa_all_visit1 <- nrsa_all%>%
   filter(VISIT_NO == 1)
-#n = 4389 obs/169 variables
+#n = 4389 obs/342 variables
 
 table(nrsa_all_visit1$nrsa_survey)
 #nrsa0809 nrsa1314 nrsa1819
@@ -663,12 +777,12 @@ nrsa_proc<-nrsa_all
 
 # NRSA 08-19 All 0809 sites and only new sites from subsequent surveys
 #   INCLUDES VISIT 1 & 2 n = 4578
-write.csv(nrsa_all,"data_processed/Compiled/nrsa081318_nonresampled_VISIT_12.csv",row.names = FALSE)
+write_csv(nrsa_all,"data_processed/Compiled/nrsa081318_nonresampled_VISIT_12.csv")
 
 
 # NRSA 08-19 All 0809 sites and only new sites from subsequent surveys
 #   ONLY VISIT 1 n = 4389
-write.csv(nrsa_all_visit1,"data_processed/Compiled/nrsa081318_nonresampled_VISIT_1_ONLY.csv",row.names = FALSE)
+write_csv(nrsa_all_visit1,"data_processed/Compiled/nrsa081318_nonresampled_VISIT_1_ONLY.csv")
 
 
 ##############
@@ -677,8 +791,9 @@ all_dat_unique= nrsa_all%>%
   distinct(UNIQUE_ID, .keep_all=TRUE)
 
 # EXPORT csv for map
-write.csv(all_dat_unique,"data_processed/Compiled/nrsa081318_for_map.csv", row.names = FALSE)
+write_csv(all_dat_unique,"data_processed/Compiled/nrsa081318_for_map.csv")
 
+nrsa_oe_all<-dat_proc
 ####################
 ## STORE PROCESSED DATA IN PACKAGE
 usethis::use_data(nrsa_proc,overwrite=TRUE)
